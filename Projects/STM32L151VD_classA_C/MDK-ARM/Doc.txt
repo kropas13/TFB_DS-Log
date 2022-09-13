@@ -1,0 +1,10 @@
+IRQs Prios 0..15 :
+
+Highest
+0 : DAC, Systick 1ms mittels HSI (+-1.5% 0..55+C Factory calibrated)
+1 : UART1 RS485
+3 : ExtI mittels HW_GPIO_SetIrq(..., IRQ_HIGH_PRIORITY, ...)
+    RTC_Alarm_IRQ für WakeUp vom STOP Mode benutzt
+	  TIM10 falls aktiv
+8 : USB
+
