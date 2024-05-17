@@ -42,7 +42,7 @@ typedef enum
 } tLEDFSMStates;	
 
 /* Exported constants --------------------------------------------------------*/
-#define APP_MINOR_VERSION   10
+#define APP_MINOR_VERSION   12
 #define APP_MAJOR_VERSION   1
 
 #define DEVICE_ID	      17  
@@ -113,7 +113,7 @@ typedef enum
  * Defines a random delay for application data transmission duty cycle and GPS fetches.
  * value in [ms].
  */
-#define APP_DATA_CAPTURE_TIME                    80 // Cold Junction Temp sensor needs min 80 ms
+#define APP_DATA_CAPTURE_TIME                    200 // V1.11 2024-03-18-Kd die 1.65V ist erst nach ca. 200ms stabil old 80 // Cold Junction Temp sensor needs min 80 ms
 
 
 /* Exported variables -----------------------------------------------------------*/

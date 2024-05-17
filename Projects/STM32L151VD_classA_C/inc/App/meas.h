@@ -68,7 +68,8 @@ typedef struct{
   float fImpReactive_Ohm[EXT_SENSE_CHANNELS]; // Blindwiderstand    
   float fImpU_mv[EXT_SENSE_CHANNELS];  
   float fImpI_uA[EXT_SENSE_CHANNELS];
-  int8_t i8ImpPhaseShiftAngle_g[EXT_SENSE_CHANNELS]; // Phasenverschiebung +-90°
+  float fImpPhaseShiftAngle_g[EXT_SENSE_CHANNELS]; // Phasenverschiebung +-90° 2024-03-28-Kd V1.12 neu in float
+  // old int8_t i8ImpPhaseShiftAngle_g[EXT_SENSE_CHANNELS];
 
 } t_sMEASExtSenseData;
 

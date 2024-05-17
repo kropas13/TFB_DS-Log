@@ -20,9 +20,10 @@
 #include "hw.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-// #define DAC_12Bit              // When not defined -> 8 Bit
+#define DAC_12Bit              // When not defined -> 8 Bit 2024-03-18-Kd neu 12Bit DAC verwenden um weniger Störungen zu haben
 #define DAC_PERIOD_Sinus_Hz       1000  // 1kHz Sinus
-#define DAC_PERIOD_DATA_CNT       200   // 200 * 1kHz = 200kHz DAC Update rate (5us Settling time)
+// 2024-03-18-Kd old <= V1.10 #define DAC_PERIOD_DATA_CNT       200   // 200 * 1kHz = 200kHz DAC Update rate (5us Settling time)
+#define DAC_PERIOD_DATA_CNT       400   // 400 * 1kHz = 400kHz DAC Update rate (2.5us Settling time)
 #define DAC_DMA_TIMER_FREQ_Hz     (DAC_PERIOD_Sinus_Hz * DAC_PERIOD_DATA_CNT)
 
 /* External variables --------------------------------------------------------*/

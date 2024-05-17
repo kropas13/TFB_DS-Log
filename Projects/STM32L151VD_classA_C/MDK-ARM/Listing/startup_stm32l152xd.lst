@@ -562,12 +562,11 @@ ARM Macro Assembler    Page 9
               00000000 
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
-ork --depend=.\build\startup_stm32l152xd.d -o.\build\startup_stm32l152xd.o -IC:
-\Users\crjust\AppData\Local\Arm\Packs\Keil\STM32L1xx_DFP\1.4.1\Drivers\CMSIS\De
-vice\ST\STM32L1xx\Include -IC:\Users\crjust\AppData\Local\Arm\Packs\Keil\STM32L
-1xx_DFP\1.4.1\Device\Include --predefine="__MICROLIB SETA 1" --predefine="__UVI
-SION_VERSION SETA 537" --predefine="STM32L152xD SETA 1" --list=.\listing\startu
-p_stm32l152xd.lst startup_stm32l152xd.s
+ork --depend=.\build\startup_stm32l152xd.d -o.\build\startup_stm32l152xd.o -Ie:
+\Keil_v5\ARM\PACK\Keil\STM32L1xx_DFP\1.0.2\Device\Include -Ie:\Keil_v5\ARM\CMSI
+S\Include --predefine="__MICROLIB SETA 1" --predefine="__UVISION_VERSION SETA 5
+35" --predefine="STM32L1XX_HD SETA 1" --list=.\listing\startup_stm32l152xd.lst 
+startup_stm32l152xd.s
 
 
 

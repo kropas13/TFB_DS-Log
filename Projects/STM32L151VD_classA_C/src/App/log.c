@@ -63,7 +63,8 @@ const tsLogData asLogData[] = {
   {"Corr. Potential %d [mV]", 24, 1},
   {"Corr. Current %d [uA]", 32, 1},
   {"Impedance %d [Ohm]", 40, 1},    
-  {"Imp. Active %d [Ohm]", 48, 1},   
+  // alt {"Imp. Active %d [Ohm]", 48, 1},   
+  {"Phase shift %d [deg]", 80, 1}, // 2024-03-28-Kd ab V1.12 (anstatt Imp. Active auf Wunsch von Hr. Kronenberg)
 };
 
 #define LOG_DATA_ARY_CNT (sizeof(asLogData) / sizeof(tsLogData))

@@ -485,7 +485,7 @@ void App_Measure(bool bLogging)
    BSP_SystemVcc(true); 	    
    u32ExtPowerOnTickstart_ms = HAL_GetTick();// 2018-10-29-Kd V1.02 for ext. Sensor
   
-   BSP_SleepDelayMs(APP_DATA_CAPTURE_TIME); // 0.1s sleep for the sensors to messure after switching on the sensors supply	  		
+   BSP_SleepDelayMs(APP_DATA_CAPTURE_TIME); // 0.2s sleep for the sensors to messure after switching on the sensors supply	  		
    // Read data from ADC
    u16BatteryVDDmV  = MEASGetUbat();   
     
@@ -569,10 +569,15 @@ void App_Measure(bool bLogging)
       sprintf(&msg_str[strlen(msg_str)], " %8.1f", sMEASExtSenseData.fImp_Ohm[i]);
      sprintf(&msg_str[strlen(msg_str)],"\r\n");
      App_TerminalSendMeasData((uint8_t*)msg_str, strlen(msg_str), false);
-     
-     sprintf(msg_str, "Resistance [Ohm]    :");
+ 
+// alt 
+//     sprintf(msg_str, "Resistance [Ohm]    :");
+//     for (int i=0; i<EXT_SENSE_CHANNELS; i++)
+//        sprintf(&msg_str[strlen(msg_str)], " %8.1f", sMEASExtSenseData.fImpActive_Ohm[i]);
+// neu 2024-03-28-Kd 
+     sprintf(msg_str, "Phase shift [deg]   :");
      for (int i=0; i<EXT_SENSE_CHANNELS; i++)
-        sprintf(&msg_str[strlen(msg_str)], " %8.1f", sMEASExtSenseData.fImpActive_Ohm[i]);
+        sprintf(&msg_str[strlen(msg_str)], " %8.1f", sMEASExtSenseData.fImpPhaseShiftAngle_g[i]);        
      sprintf(&msg_str[strlen(msg_str)],"\r\n");
      App_TerminalSendMeasData((uint8_t*)msg_str, strlen(msg_str), false); 
    }
@@ -968,7 +973,7 @@ static uint8_t  u8GrpEndPosBuf[eUplink_GrpID_Cnt] = {0};
        for (u8Ch=0,u8Msk=0x01; u8Ch<EXT_SENSE_CHANNELS; u8Ch++, u8Msk<<=1)
        {
          if (u8Msk & sCfg.sAppCfg.u8ChMskPhaseAngle)         
-           u8DataBuf[u8DataLen++] = sMEASExtSenseData.i8ImpPhaseShiftAngle_g[u8Ch];                          
+           u8DataBuf[u8DataLen++] = (int8_t)sMEASExtSenseData.fImpPhaseShiftAngle_g[u8Ch]; // 2024-03-28-Kd V1.12 (old u8DataBuf[u8DataLen++] = sMEASExtSenseData.i8ImpPhaseShiftAngle_g[u8Ch];)                         
        }
        u8GrpEndPosBuf[u8GrpCnt++] = u8DataLen-1;
      } // 116 + 2 + 8*1 = 126 Bytes till here    

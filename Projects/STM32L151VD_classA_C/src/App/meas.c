@@ -50,8 +50,8 @@
 #define MEAS_ADC_SAMPLES_PER_PERIOD_CNT   333
 #define ADC_CAPTURE_CNT                   (MEAS_PERIOD_CNT * (MEAS_ADC_SAMPLES_PER_PERIOD_CNT*105/100)) // inkl. 5% reserve 16MHz ADC Clock is the HSI Toleranz (max. +-4%), 1ms Period / 3us = 333.3 meassurements when have 3 Channels@4+12Tcycle
 
-#define CALC_AVG_FACT             16  // Die Average Werte um 16 anheben (4 Bits) um die höhere Genauigkeit mehrere Messwerte auszunutzen
-                                      // Max. 16
+#define CALC_AVG_FACT             16  // Die Average Werte um Faktor 16 anheben (4 Bits) um die höhere Genauigkeit mehrere Messwerte auszunutzen (Max. 16)
+#define CALC_AVG_FACT_SQUAREROOT   4  // Die Wuzel von CALC_AVG_FACT
 
 #define DEF_CALC_IMP_FLOAT       // When not defined calc integer SquareRoute
 #define IMP_I2_AVG_MEAS_CNT_MAX        8 // Max. 8 measures on I2
@@ -238,11 +238,11 @@ void CalcADC_DMA(uint16_t ui16MeasPeriodCnt)
   {     
       // RMS Wurzel ziehen
 #ifdef DEF_CALC_IMP_FLOAT           
-      dResult = (double)ui64ADCSquare_Sum[eAdcDmaCh] / ui32ADC_Cnt / CALC_AVG_FACT; 
-      g_afMeasADC[eAdcDmaCh] = (float)sqrt(dResult);  
+      dResult = (double)ui64ADCSquare_Sum[eAdcDmaCh] / ui32ADC_Cnt / CALC_AVG_FACT;
+      g_afMeasADC[eAdcDmaCh] = (float)sqrt(dResult) / CALC_AVG_FACT_SQUAREROOT; // 2024-03-15-Kd new / CALC_AVG_FACT_SQUAREROOT (da wir die CALC_AVG_FACT auch quadriert haben)
 #else
       ui32Result = ui64ADCSquare_Sum[eAdcDmaCh] / ui32ADC_Cnt / CALC_AVG_FACT; 
-      g_aui16MeasADC[eAdcDmaCh] = sqrtI(ui32Result);    
+      g_aui16MeasADC[eAdcDmaCh] = sqrtI(ui32Result) / CALC_AVG_FACT_SQUAREROOT; // 2024-03-15-Kd new / CALC_AVG_FACT_SQUAREROOT    
 #endif    
   }
   
@@ -261,6 +261,29 @@ void CalcADC_DMA(uint16_t ui16MeasPeriodCnt)
   else
     g_i16MeasADC_Phase_U_I1_100mg = i16Value;
   i16Value = i32AveragePhase_U_I2 * 3600 / ui16MeasADC_SamplesPerPeriodAndChannel / ui8PeriodIdx;
+  
+  // 2024-03-18-Kd V1.11 ISL28130 Bandbreite von 400kHz und Gain 100 ergeben ein Phasenerror je nach AD8231 Gain noch etwas unterschiedlich
+  switch (sShiftReg_2.eOP_GainSetupImpI)
+  {
+     case eOP_GAIN_1:
+     case eOP_GAIN_2:
+     case eOP_GAIN_4:
+        i16Value -= 120;
+     break;
+     case eOP_GAIN_8:
+        i16Value -= 100;
+     break;        
+     case eOP_GAIN_16:
+        i16Value -= 60;
+     break;  
+     case eOP_GAIN_32:
+        i16Value -= 40;
+     break; 
+     case eOP_GAIN_64:
+        i16Value -= 10;
+     break;      
+}
+  
   if (i16Value > 900)
       g_i16MeasADC_Phase_U_I2_100mg = 900;
   else if (i16Value < -900)
@@ -786,7 +809,7 @@ const double      Pi = 3.141592653;
           u8GainU *= 2;
           bGainChanged = true;
         }
-        // Erster Durchlauf und I2 schon im Anschlag (max. 1.65/1.414 = 1.17Vp -> 1.1)
+        // Erster Durchlauf und I2 schon im Anschlag (max. 1.65/1.414 = 1.17Vrms -> 1.1)
         if ((sShiftReg_2.eOP_GainSetupImpI == eOP_GAIN_1) && (fADC_I2_mV > 1100))
           bI2 = false;
         if (bI2)
@@ -832,7 +855,7 @@ const double      Pi = 3.141592653;
         if (sMEASExtSenseData.fImp_Ohm[u8Ch] > 2000000.0)
         {
           // Open Input
-          sMEASExtSenseData.i8ImpPhaseShiftAngle_g[u8Ch] = 0;
+          sMEASExtSenseData.fImpPhaseShiftAngle_g[u8Ch] = 0;
           sMEASExtSenseData.fImp_Ohm[u8Ch] = 999999.9;
           sMEASExtSenseData.fImpActive_Ohm[u8Ch] = 999999.9;
           sMEASExtSenseData.fImpReactive_Ohm[u8Ch] = 0;
@@ -843,13 +866,14 @@ const double      Pi = 3.141592653;
           g_au32MeasUCompCnt[]
           g_au32MeasiCompCnt[]
   #else          
-          if (bI2)
-            i16PhaseAngle_100mg = g_i16MeasADC_Phase_U_I2_100mg;
+          if (bI2)          
+            i16PhaseAngle_100mg = g_i16MeasADC_Phase_U_I2_100mg;                     
           else          
             i16PhaseAngle_100mg = g_i16MeasADC_Phase_U_I1_100mg;               
   #endif
           rad = (float)i16PhaseAngle_100mg * Pi / 1800; /* Berechnen des Bogenmaßwinkels */
-          sMEASExtSenseData.i8ImpPhaseShiftAngle_g[u8Ch] = (int8_t)(i16PhaseAngle_100mg/10); 
+          sMEASExtSenseData.fImpPhaseShiftAngle_g[u8Ch] = (float)i16PhaseAngle_100mg/10; // 2024-03-28-Kd V1.12
+          // old sMEASExtSenseData.i8ImpPhaseShiftAngle_g[u8Ch] = (int8_t)(i16PhaseAngle_100mg/10);
           sMEASExtSenseData.fImpActive_Ohm[u8Ch] = fabs(sMEASExtSenseData.fImp_Ohm[u8Ch] * (float)cos(rad)); // Wirkwiderstand
           sMEASExtSenseData.fImpReactive_Ohm[u8Ch] = fabs(sMEASExtSenseData.fImp_Ohm[u8Ch] * (float)sin(rad)); // Blindwiderstand      
           if (sMEASExtSenseData.fImp_Ohm[u8Ch] > 999999.9)
