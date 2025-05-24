@@ -1,2 +1,0 @@
-- name: Creates a PR to solve an issue using ChatGPT
-  uses: alexanmtz/AIPR@v0.2
